@@ -1,28 +1,73 @@
 {
-  "name": "react-native-chart-view",
-  "version": "0.0.1",
+  "_args": [
+    [
+      "react-native-chart-view@git://github.com/magojiro/react-native-highcharts.git",
+      "E:\\workspace\\seasun-management\\code\\seasun-management-app"
+    ]
+  ],
+  "_from": "git://github.com/magojiro/react-native-highcharts.git",
+  "_id": "react-native-chart-view@0.0.1",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/react-native-chart-view",
+  "_phantomChildren": {},
+  "_requested": {
+    "hosted": {
+      "directUrl": "https://raw.githubusercontent.com/magojiro/react-native-highcharts/master/package.json",
+      "gitUrl": "git://github.com/magojiro/react-native-highcharts.git",
+      "httpsUrl": "git+https://github.com/magojiro/react-native-highcharts.git",
+      "shortcut": "github:magojiro/react-native-highcharts",
+      "ssh": "git@github.com:magojiro/react-native-highcharts.git",
+      "sshUrl": "git+ssh://git@github.com/magojiro/react-native-highcharts.git",
+      "type": "github"
+    },
+    "name": "react-native-chart-view",
+    "raw": "react-native-chart-view@git://github.com/magojiro/react-native-highcharts.git",
+    "rawSpec": "git://github.com/magojiro/react-native-highcharts.git",
+    "scope": null,
+    "spec": "git://github.com/magojiro/react-native-highcharts.git",
+    "type": "hosted"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "git://github.com/magojiro/react-native-highcharts.git#093d7f3d02a03c4511e8d967ebd1f9f028e73c43",
+  "_shasum": "8483c2a91a4bb8bbb21c3a42f4309ed1f90644f5",
+  "_shrinkwrap": null,
+  "_spec": "react-native-chart-view@git://github.com/magojiro/react-native-highcharts.git",
+  "_where": "E:\\workspace\\seasun-management\\code\\seasun-management-app",
+  "author": {
+    "name": "Infinity0106"
+  },
+  "bugs": {
+    "url": "https://github.com/Infinity0106/react-native-chart-view/issues"
+  },
+  "dependencies": {},
   "description": "JavaScript implementation of a view container that can flip between its front and back, where the back has a console.log and the front is your aplication.",
+  "devDependencies": {},
+  "gitHead": "093d7f3d02a03c4511e8d967ebd1f9f028e73c43",
+  "homepage": "https://github.com/Infinity0106/react-native-chart-view#readme",
+  "keywords": [
+    "HighCharts",
+    "WebView",
+    "android",
+    "ios",
+    "react-component",
+    "react-native"
+  ],
+  "license": "MIT",
   "main": "react-native-ChartView.js",
+  "name": "react-native-chart-view",
+  "optionalDependencies": {},
+  "readme": "# React-Native-Chart-View\r\n\r\nthis is a react native component that uses highchart where you send the configuration as a prop and the chart is created with a WebView\r\n\r\n## Install\r\n```bat\r\nnpm install react-native-chart-view --save\r\n```\r\n## Demo\r\n![](http://i.giphy.com/l3vRdWwXin1ooLCHS.gif)\r\n \r\n## Basic example\r\n**REMEMBER**  to declare the variable Highcharts='Highcharts'\r\n\r\n```javascript\r\nimport ChartView from 'react-native-chart-view';\r\n...\r\nrender() {\r\n    var Highcharts='Highcharts';\r\n    var conf={\r\n            chart: {\r\n                type: 'spline',\r\n                animation: Highcharts.svg, // don't animate in old IE\r\n                marginRight: 10,\r\n                events: {\r\n                    load: function () {\r\n\r\n                        // set up the updating of the chart each second\r\n                        var series = this.series[0];\r\n                        setInterval(function () {\r\n                            var x = (new Date()).getTime(), // current time\r\n                                y = Math.random();\r\n                            series.addPoint([x, y], true, true);\r\n                        }, 1000);\r\n                    }\r\n                }\r\n            },\r\n            title: {\r\n                text: 'Live random data'\r\n            },\r\n            xAxis: {\r\n                type: 'datetime',\r\n                tickPixelInterval: 150\r\n            },\r\n            yAxis: {\r\n                title: {\r\n                    text: 'Value'\r\n                },\r\n                plotLines: [{\r\n                    value: 0,\r\n                    width: 1,\r\n                    color: '#808080'\r\n                }]\r\n            },\r\n            tooltip: {\r\n                formatter: function () {\r\n                    return '<b>' + this.series.name + '</b><br/>' +\r\n                        Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +\r\n                        Highcharts.numberFormat(this.y, 2);\r\n                }\r\n            },\r\n            legend: {\r\n                enabled: false\r\n            },\r\n            exporting: {\r\n                enabled: false\r\n            },\r\n            series: [{\r\n                name: 'Random data',\r\n                data: (function () {\r\n                    // generate an array of random data\r\n                    var data = [],\r\n                        time = (new Date()).getTime(),\r\n                        i;\r\n\r\n                    for (i = -19; i <= 0; i += 1) {\r\n                        data.push({\r\n                            x: time + i * 1000,\r\n                            y: Math.random()\r\n                        });\r\n                    }\r\n                    return data;\r\n                }())\r\n            }]\r\n        };\r\n    return (\r\n      <ChartView style={{height:300}} config={conf}></ChartView>\r\n    );\r\n}\r\n```\r\n\r\n\r\n## Stuff used to make this:\r\n\r\n * [Highcharts](http://www.highcharts.com/) for making the chart",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Infinity0106/react-native-chart-view.git"
+  },
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Infinity0106/react-native-chart-view"
-  },
-  "keywords": [
-    "react-native",
-    "react-component",
-    "ios",
-    "android",
-    "WebView",
-    "HighCharts"
-  ],
-  "author": "Infinity0106",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Infinity0106/react-native-chart-view/issues"
-  },
-  "homepage": "https://github.com/Infinity0106/react-native-chart-view#readme"
+  "version": "0.0.1"
 }
