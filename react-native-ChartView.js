@@ -91,6 +91,15 @@ class ChartWeb extends Component {
         //console.log(concatHTML)
         return (
             <View style={this.props.style}>
+              {(()=>{
+                if(this.props.loading){
+                  return(
+                    <View style={styles.backLoding}>
+                      <Image style={styles.loadingImage} source={require('./public/loadingData.png')}></Image>
+                    </View>
+                  )
+                }
+              })()}
                 <WebView
                     onLayout={this.re_renderWebView}
                     style={styles.full}
@@ -133,10 +142,25 @@ var flattenText = function(item) {
 };
 
 var styles = StyleSheet.create({
-    full: {
-        flex: 1,
-        backgroundColor:'transparent'
-    }
+  full: {
+      flex: 1,
+      backgroundColor:'transparent'
+  },
+  backLoding:{
+      position:'absolute',
+      left:0,
+      top:0,
+      width:'100%',
+      height:'100%',
+      backgroundColor:'rgb(246,246,246)',
+      alignItems:'center',
+      justifyContent:'center'
+  },
+  loadingImage:{
+    resizeMode:'contain',
+    width:100,
+    height:100,
+  }
 });
 
 module.exports = ChartWeb;
