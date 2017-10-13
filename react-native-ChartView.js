@@ -23,6 +23,17 @@ class ChartWeb extends Component {
                  right:0;
                  bottom:0;
                  position:absolute;
+                 overflow-y:hidden;
+                 overflow-x:hidden;
+                 ${this.props.loading?'visibility:hidden;':''}
+             }
+             html{
+                overflow-y:hidden;
+                overflow-x:hidden;
+             }
+             body{
+                overflow-y:hidden;
+                overflow-x:hidden;
              }
              </style>
              <head>`;
@@ -73,8 +84,36 @@ class ChartWeb extends Component {
         })
     }
 
+  configToAddLoading(config){
+    if(this.props.loading){
+      if(!config.chart){
+        config.chart={};
+      }
+      if(!config.chart.events){
+        config.chart.events = {};
+      }
+      if(config.chart.events.load){
+        let temp = config.chart.events.load;
+        config.chart.events.load = function(){
+          $('#container').css('visibility','visible');
+          return (temp.bind(this))(...arguments);
+        }
+        return config;
+      }else{
+        config.chart.events.load = function(){
+          $('#container').css('visibility','visible');
+        }
+        return config;
+      }
+    }else{
+      return config;
+    }
+  }
+
     render() {
-        const config = JSON.parse(JSON.stringify(this.props.config, function (key, value) {
+      //for loading
+      let configToAddLoading = this.configToAddLoading(this.props.config);
+      const config = JSON.parse(JSON.stringify(configToAddLoading, function (key, value) {
           //create string of json but if it detects function it uses toString()
           return (typeof value === 'function') ? value.toString() : value;
         }));
