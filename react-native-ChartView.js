@@ -36,7 +36,9 @@ class ChartWeb extends Component {
                 overflow-x:hidden;
              }
              </style>
-             <head>`;
+             <head>
+             <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+             `;
       init += jqueryJs;
       if(this.props.highStockFlag){
         init += highStockJs;
@@ -144,6 +146,7 @@ class ChartWeb extends Component {
                     style={styles.full}
                     source={{ html: concatHTML, baseUrl: 'web/' }}
                     javaScriptEnabled={true}
+                    scalesPageToFit={false}
                 />
             </View>
         );
