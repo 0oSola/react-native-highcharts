@@ -78,12 +78,12 @@ class ChartWeb extends Component {
     }
 
     re_renderWebView(e) {//re_render is used to resize on orientation of display
-        this.setState({
+        /*this.setState({
             Wlayout: {
                 height: e.nativeEvent.layout.height,
                 width: e.nativeEvent.layout.width,
             }
-        })
+        })*/
     }
 
   configToAddLoading(config){
@@ -92,7 +92,7 @@ class ChartWeb extends Component {
         config.chart={};
       }
       if(!config.chart.events){
-        config.chart.events = {};
+        config.chart.events = {nothing:null};//防止出现空对象，正则会出问题
       }
       if(config.chart.events.load){
         let temp = config.chart.events.load;
@@ -129,14 +129,16 @@ class ChartWeb extends Component {
       }));
 
         const concatHTML =this.state.init + flattenObject(outerPropsHtml) + this.state.outerPropsEnd + flattenObject(config) +  this.state.end;
-        //console.log(concatHTML)
+        //console.log(1233,concatHTML)
         return (
             <View style={this.props.style}>
               {(()=>{
                 if(this.props.loading){
                   return(
-                    <View style={styles.backLoding}>
-                      <Image style={styles.loadingImage} source={require('./public/loadingData.png')}></Image>
+                    <View style={styles.backLoading}>
+                      <View style={this.props.loadingWrapperStyle?[styles.backLoadingWrapper,this.props.loadingWrapperStyle]: styles.backLoadingWrapper}>
+                        <Image style={styles.loadingImage} source={require('./public/loadingData.png')} />
+                      </View>
                     </View>
                   )
                 }
@@ -146,7 +148,7 @@ class ChartWeb extends Component {
                     style={styles.full}
                     source={{ html: concatHTML, baseUrl: 'web/' }}
                     javaScriptEnabled={true}
-                    scalesPageToFit={false}
+
                 />
             </View>
         );
@@ -185,18 +187,25 @@ var flattenText = function(item) {
 
 var styles = StyleSheet.create({
   full: {
-      flex: 1,
-      backgroundColor:'transparent'
+    width:'100%',
+    height:'100%',
+    backgroundColor:'transparent'
   },
-  backLoding:{
-      position:'absolute',
-      left:0,
-      top:0,
-      width:'100%',
-      height:'100%',
-      backgroundColor:'rgb(246,246,246)',
-      alignItems:'center',
-      justifyContent:'center'
+  backLoading:{
+    position:'absolute',
+    left:0,
+    top:0,
+    width:'100%',
+    height:'100%',
+    alignItems:'center',
+    justifyContent:'center'
+  },
+  backLoadingWrapper:{
+    width:'100%',
+    height:'100%',
+    backgroundColor:'rgb(246,246,246)',
+    alignItems:'center',
+    justifyContent:'center'
   },
   loadingImage:{
     resizeMode:'contain',
