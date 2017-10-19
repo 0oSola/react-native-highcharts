@@ -115,7 +115,8 @@ class ChartWeb extends Component {
     render() {
       //for loading
       let configToAddLoading = this.configToAddLoading(this.props.config);
-      const config = JSON.parse(JSON.stringify(configToAddLoading, function (key, value) {
+      let configCheckEmptyObject = checkEmptyObject(configToAddLoading);
+      const config = JSON.parse(JSON.stringify(configCheckEmptyObject, function (key, value) {
           //create string of json but if it detects function it uses toString()
           return (typeof value === 'function') ? value.toString() : value;
         }));
@@ -128,8 +129,10 @@ class ChartWeb extends Component {
         return (typeof value === 'function') ? value.toString() : value;
       }));
 
-        const concatHTML =this.state.init + flattenObject(outerPropsHtml) + this.state.outerPropsEnd + flattenObject(config) +  this.state.end;
-        //console.log(1233,concatHTML)
+      const concatHTML =this.state.init + flattenObject(outerPropsHtml) + this.state.outerPropsEnd + flattenObject(config) +  this.state.end;
+      if(this.props.debug){
+        console.log(1233,concatHTML)
+      }
         return (
             <View style={this.props.style}>
               {(()=>{
@@ -183,6 +186,23 @@ var flattenText = function(item) {
         str += `${item}`
     }
     return str
+};
+//防止出现空对象，正则会出问题
+var checkEmptyObject=(config)=>{
+  for(let i in config){
+    if(Object.prototype.toString.call(config[i])=== '[object Object]'){
+      let flag = false;
+      for(let ii in config[i]){
+        flag = true;
+        config[i] = checkEmptyObject(config[i]);
+        break;
+      }
+      if(!flag){
+        config[i] = {nothing:null};
+      }
+    }
+  }
+  return config;
 };
 
 var styles = StyleSheet.create({
