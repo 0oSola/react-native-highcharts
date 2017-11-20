@@ -151,7 +151,7 @@ class ChartWeb extends Component {
                     style={styles.full}
                     source={{ html: concatHTML, baseUrl: 'web/' }}
                     javaScriptEnabled={true}
-
+                    bounces={false}
                 />
             </View>
         );
