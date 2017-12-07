@@ -5,6 +5,8 @@ import {jqueryJs} from './jsString/jqueryJs';
 import {highChartJs} from './jsString/highCharts';
 import {highStockJs} from './jsString/highStock';
 
+import MultiChart from './MultiChart';
+
 const win = Dimensions.get('window');
 const Highcharts='Highcharts';
 
@@ -233,5 +235,6 @@ var styles = StyleSheet.create({
     height:100,
   }
 });
+ChartWeb.MultiChart = MultiChart;
 
 module.exports = ChartWeb;
