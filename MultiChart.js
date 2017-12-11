@@ -43,15 +43,24 @@ export default class ChartWeb extends Component {
                border-bottom: ${getAdjustPx(20)}px solid rgb(236,237,238);
              }
              .tab-title {
-               border-left: ${getAdjustPx(8)}px solid #0085ff;
-               padding-left: ${getAdjustPx(10)}px;
                margin-bottom: ${getAdjustPx(50)}px;
-               font-size: ${getAdjustPx(30)}px;
                height: ${getAdjustPx(30)}px;
-             }
-             .tab-title > span {
-               display: inline-block;
                line-height: ${getAdjustPx(30)}px;
+               overflow: hidden;
+             }
+             .tab-border {
+               display: inline-block;
+               background-color: #0085ff;
+               width: ${getAdjustPx(8)}px;
+               height: 100%;
+               margin-right: ${getAdjustPx(8)}px;
+               float: left;
+             }
+             .tab-text {
+               display: inline-block;
+               height: 100%;
+               font-size: ${getAdjustPx(30)}px;
+               clear: left;
              }
              .text-center {
                text-align: center;
@@ -83,19 +92,19 @@ export default class ChartWeb extends Component {
              }
              .legend-label.green {
                border-color: #45d6ac;
-               box-shadow: 0 0 5px rgba(69,214,172,0.2);
+               box-shadow: 0 0 10px rgba(69,214,172,0.5);
              }
              .legend-label.blue {
                border-color: #0085ff;
-               box-shadow: 0 0 5px rgba(0,133,255,0.2);
+               box-shadow: 0 0 10px rgba(0,133,255,0.5);
              }
              .legend-label.deepBlue {
                border-color: #004a98;
-               box-shadow: 0 0 5px rgba(0,74,152,0.2);
+               box-shadow: 0 0 10px rgba(0,74,152,0.5);
              }
              .legend-label.purple {
                border-color: #9b5eed;
-               box-shadow: 0 0 5px rgba(155,94,237,0.2);
+               box-shadow: 0 0 10px rgba(155,94,237,0.5);
              }
              .legend-name~.legend-label {
                margin-left: ${getAdjustPx(30)}px;
@@ -173,8 +182,9 @@ export default class ChartWeb extends Component {
     // tabTitle
     if (config.tabTitle) {
       containerHtml += `
-        <div class="tab-title" style="${config.tabTitle.borderColor?'border-left-color:'+config.tabTitle.borderColor+';':''}">
-          <span>${config.tabTitle.text}</span>
+        <div class="tab-title">
+          <span style="${config.tabTitle.borderColor?'background-color:'+config.tabTitle.borderColor+';':''}" class="tab-border"></span>
+          <span class="tab-text">${config.tabTitle.text}</span>
         </div>
       `;
     }
