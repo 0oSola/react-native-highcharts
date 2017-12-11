@@ -75,13 +75,29 @@ export default class ChartWeb extends Component {
                color: #888;
                text-align: center;
              }
-             .legend-img {
-               width: ${getAdjustPx(20)}px;
-               height: ${getAdjustPx(20)}px;
+             .legend-label {
                margin-right: ${getAdjustPx(10)}px;
                display: inline-block;
+               border: ${getAdjustPx(10)}px solid;
+               border-radius: 50%;
              }
-             .legend-name~.legend-img {
+             .legend-label.green {
+               border-color: #45d6ac;
+               box-shadow: 0 0 5px rgba(69,214,172,0.2);
+             }
+             .legend-label.blue {
+               border-color: #0085ff;
+               box-shadow: 0 0 5px rgba(0,133,255,0.2);
+             }
+             .legend-label.deepBlue {
+               border-color: #004a98;
+               box-shadow: 0 0 5px rgba(0,74,152,0.2);
+             }
+             .legend-label.purple {
+               border-color: #9b5eed;
+               box-shadow: 0 0 5px rgba(155,94,237,0.2);
+             }
+             .legend-name~.legend-label {
                margin-left: ${getAdjustPx(30)}px;
              }
              .chart {
@@ -187,7 +203,7 @@ export default class ChartWeb extends Component {
 
       config.legend.forEach(item => {
         containerHtml += `
-          <img class="legend-img" src="${item.imgSrc}" />
+          <span class="legend-label ${item.legendColor ? item.legendColor : ''}"></span>
           <span class="legend-name">${item.text}</span>
         `;
       })
