@@ -2,8 +2,8 @@
  * Created by Chen Haowen on 2017/12/7.
  */
 'use strict';
-import React, {Component, PropTypes,} from 'react';
-import {AppRegistry, StyleSheet, Text, View, WebView, Image, Dimensions ,PixelRatio} from 'react-native';
+import React, {Component, PropTypes} from 'react';
+import {AppRegistry, StyleSheet, Text, View, WebView, Image, Dimensions ,PixelRatio, Platform} from 'react-native';
 
 import {jqueryJs} from './jsString/jqueryJs';
 import {highChartJs} from './jsString/highCharts';
@@ -17,6 +17,7 @@ const PxScale = DesignWidth / DeviceWidth;
 const PxScaleY = DesignHeight / DeviceHeight;
 const win = Dimensions.get('window');
 const Highcharts = 'Highcharts';
+const platform = Platform.OS;
 
 function getAdjustPx(px) {
   return PixelRatio.roundToNearestPixel(px) / PxScale;
@@ -39,14 +40,18 @@ export default class ChartWeb extends Component {
                overflow-x:hidden;
              }
              .container.seperate {
-               border-bottom: ${getAdjustPx(30)}px solid rgb(236,237,238);
+               border-bottom: ${getAdjustPx(20)}px solid rgb(236,237,238);
              }
              .tab-title {
-               border-left: ${getAdjustPx(8)}px solid #2aabd2;
+               border-left: ${getAdjustPx(8)}px solid #0085ff;
                padding-left: ${getAdjustPx(10)}px;
                margin-bottom: ${getAdjustPx(50)}px;
-               height: ${getAdjustPx(30)}px;
                font-size: ${getAdjustPx(30)}px;
+               height: ${getAdjustPx(30)}px;
+             }
+             .tab-title > span {
+               display: inline-block;
+               line-height: ${getAdjustPx(30)}px;
              }
              .text-center {
                text-align: center;
@@ -73,7 +78,8 @@ export default class ChartWeb extends Component {
              .legend-img {
                width: ${getAdjustPx(20)}px;
                height: ${getAdjustPx(20)}px;
-               margin-right: ${getAdjustPx(20)}px;
+               margin-right: ${getAdjustPx(10)}px;
+               display: inline-block;
              }
              .legend-name~.legend-img {
                margin-left: ${getAdjustPx(30)}px;
@@ -101,10 +107,10 @@ export default class ChartWeb extends Component {
     }
     init += `<script>
                       $(function () {
-                      window.location.hash = 1;
-                      document.title = document.body.clientHeight;
+                        window.location.hash = 1;
+                        document.title = document.body.scrollHeight;
 
-                       var outerProps =
+                        var outerProps =
                          `;
     let outerPropsEnd = ';';
 
@@ -151,7 +157,9 @@ export default class ChartWeb extends Component {
     // tabTitle
     if (config.tabTitle) {
       containerHtml += `
-        <div class="tab-title" style="${config.tabTitle.borderColor?'border-left-color:'+config.tabTitle.borderColor+';':''}">${config.tabTitle.text}</div>
+        <div class="tab-title" style="${config.tabTitle.borderColor?'border-left-color:'+config.tabTitle.borderColor+';':''}">
+          <span>${config.tabTitle.text}</span>
+        </div>
       `;
     }
     // chart-wrapper
@@ -243,7 +251,6 @@ export default class ChartWeb extends Component {
     }
     configArray.forEach((k, i)=> {
       //for loading
-      // let configToAddLoading = this.configToAddLoading(k);
       let configCheckEmptyObject = checkEmptyObject(k.highChartsConfig);
       const config = JSON.parse(JSON.stringify(configCheckEmptyObject, function (key, value) {
         //create string of json but if it detects function it uses toString()
@@ -279,7 +286,8 @@ export default class ChartWeb extends Component {
     return (
       <View style={{height:Math.max(this.state.height, DeviceHeight)}}>
         <WebView
-          ioscontentInset={{top:0, left:0}}
+          bounces={false}
+          automaticallyAdjustContentInsets={false}
           onLayout={this.re_renderWebView}
           style={styles.full}
           onNavigationStateChange={(title)=>{
