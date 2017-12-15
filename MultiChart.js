@@ -132,7 +132,40 @@ export default class ChartWeb extends Component {
     }
     init += `<script>
               $(function () {
-                window.location.hash = '#myHeight#' + document.body.clientHeight;
+               function awaitPostMessage() {//修复postmessage
+                 var isReactNativePostMessageReady = !!window.originalPostMessage;
+                 var queue = [];
+                 var currentPostMessageFn = function store(message) {
+                   if (queue.length > 100) queue.shift();
+                   queue.push(message);
+                 };
+                 if (!isReactNativePostMessageReady) {
+                   var originalPostMessage = window.postMessage;
+                   Object.defineProperty(window, 'postMessage', {
+                     configurable: true,
+                     enumerable: true,
+                     get: function () {
+                       return currentPostMessageFn;
+                     },
+                     set: function (fn) {
+                       currentPostMessageFn = fn;
+                       isReactNativePostMessageReady = true;
+                       setTimeout(sendQueue, 0);
+                     }
+                   });
+                   window.postMessage.toString = function () {
+                     return String(originalPostMessage);
+                   };
+                 }
+
+                 function sendQueue() {
+                   while (queue.length > 0) window.postMessage(queue.shift());
+                 }
+               };
+                awaitPostMessage(); //修复postmessage
+
+                window.postMessage(document.body.clientHeight.toString());
+//                window.location.hash = '#myHeight#' + document.body.clientHeight;
 
                 var outerProps =
             `;
@@ -287,8 +320,8 @@ export default class ChartWeb extends Component {
           automaticallyAdjustContentInsets={false}
           onLayout={this.re_renderWebView}
           style={styles.full}
-          onNavigationStateChange={(info)=>{
-          let height = info.url.split('#myHeight#')[1]/1 + 10;
+          onMessage={(e)=>{
+          let height = e.nativeEvent.data/1 + 10;
       this.setState({
         height:height
       });
