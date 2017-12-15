@@ -131,12 +131,11 @@ export default class ChartWeb extends Component {
       init += highChartJs;
     }
     init += `<script>
-                      $(function () {
-                        window.location.hash = 1;
-                        document.title = document.body.scrollHeight;
+              $(function () {
+                window.location.hash = '#' + document.body.clientHeight;
 
-                        var outerProps =
-                         `;
+                var outerProps =
+            `;
     let outerPropsEnd = ';';
 
     let chartEnd = ` );`;
@@ -240,35 +239,7 @@ export default class ChartWeb extends Component {
      })*/
   }
 
-  // highCharts loading
-  // configToAddLoading(config) {
-  //   if (this.props.loading) {
-  //     if (!config.chart) {
-  //       config.chart = {};
-  //     }
-  //     if (!config.chart.events) {
-  //       config.chart.events = {nothing: null};//防止出现空对象，正则会出问题
-  //     }
-  //     if (config.chart.events.load) {
-  //       let temp = config.chart.events.load;
-  //       config.chart.events.load = function () {
-  //         $('.container').css('visibility', 'visible');
-  //         return (temp.bind(this))(...arguments);
-  //       }
-  //       return config;
-  //     } else {
-  //       config.chart.events.load = function () {
-  //         $('.container').css('visibility', 'visible');
-  //       }
-  //       return config;
-  //     }
-  //   } else {
-  //     return config;
-  //   }
-  // }
-
   render() {
-
     // highCharts 启动函数字符串拼接
     let chartHtml = '';
     let configArray = this.props.config;
@@ -316,12 +287,10 @@ export default class ChartWeb extends Component {
           automaticallyAdjustContentInsets={false}
           onLayout={this.re_renderWebView}
           style={styles.full}
-          onNavigationStateChange={(title)=>{
-            if(title.title && !isNaN(title.title)) {
-              this.setState({
-                height:(parseInt(title.title))
-              });
-            }
+          onNavigationStateChange={(info)=>{
+            this.setState({
+              height:info.url.replace('about:blank%23','')/1
+            });
           }}
           source={{html: concatHTML, baseUrl: 'web/'}}
           javaScriptEnabled={true}
