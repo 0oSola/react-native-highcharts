@@ -133,9 +133,7 @@ export default class ChartWeb extends Component {
     init += `<script>
               $(function () {
                 window.location.hash = '#myHeight#' + document.body.clientHeight;
-                window.onresize = function(){
-                   window.location.hash = '#myHeight#' + document.body.clientHeight;
-                }
+
                 var outerProps =
             `;
     let outerPropsEnd = ';';
