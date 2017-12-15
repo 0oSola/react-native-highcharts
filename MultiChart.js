@@ -132,8 +132,10 @@ export default class ChartWeb extends Component {
     }
     init += `<script>
               $(function () {
-                window.location.hash = '#' + document.body.clientHeight;
-
+                window.location.hash = '#myHeight#' + document.body.clientHeight;
+                window.onresize = function(){
+                   window.location.hash = '#myHeight#' + document.body.clientHeight;
+                }
                 var outerProps =
             `;
     let outerPropsEnd = ';';
@@ -288,10 +290,11 @@ export default class ChartWeb extends Component {
           onLayout={this.re_renderWebView}
           style={styles.full}
           onNavigationStateChange={(info)=>{
-            this.setState({
-              height:info.url.replace('about:blank%23','')/1
-            });
-          }}
+          let height = info.url.split('#myHeight#')[1]/1 + 10;
+      this.setState({
+        height:height
+      });
+    }}
           source={{html: concatHTML, baseUrl: 'web/'}}
           javaScriptEnabled={true}
         />
