@@ -132,6 +132,7 @@ export default class ChartWeb extends Component {
     }
     init += `<script>
               $(function () {
+
                function awaitPostMessage() {//修复postmessage
                  var isReactNativePostMessageReady = !!window.originalPostMessage;
                  var queue = [];
@@ -139,6 +140,7 @@ export default class ChartWeb extends Component {
                    if (queue.length > 100) queue.shift();
                    queue.push(message);
                  };
+
                  if (!isReactNativePostMessageReady) {
                    var originalPostMessage = window.postMessage;
                    Object.defineProperty(window, 'postMessage', {
@@ -165,6 +167,8 @@ export default class ChartWeb extends Component {
                 awaitPostMessage(); //修复postmessage
 
                 window.postMessage(document.body.clientHeight.toString());
+
+
 //                window.location.hash = '#myHeight#' + document.body.clientHeight;
 
                 var outerProps =
@@ -173,7 +177,7 @@ export default class ChartWeb extends Component {
 
     let chartEnd = ` );`;
     this.state = {
-      height: DeviceHeight,
+      height: this.props.height?this.props.height:DeviceHeight,
       init,
       outerPropsEnd,
       chartEnd,
@@ -321,11 +325,13 @@ export default class ChartWeb extends Component {
           onLayout={this.re_renderWebView}
           style={styles.full}
           onMessage={(e)=>{
-          let height = e.nativeEvent.data/1 + 10;
-      this.setState({
-        height:height
-      });
-    }}
+            if(!this.props.height){
+              let height = e.nativeEvent.data/1 + 10;
+              this.setState({
+                height:height
+              });
+            }
+          }}
           source={{html: concatHTML, baseUrl: 'web/'}}
           javaScriptEnabled={true}
         />
