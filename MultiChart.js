@@ -285,7 +285,7 @@ export default class ChartWeb extends Component {
     }
     configArray.forEach((k, i)=> {
       //for loading
-      let configCheckEmptyObject = checkEmptyObject(k.highChartsConfig);
+      let configCheckEmptyObject = checkEmptyObjectOrArray(k.highChartsConfig);
       const config = JSON.parse(JSON.stringify(configCheckEmptyObject, function (key, value) {
         //create string of json but if it detects function it uses toString()
         return (typeof value === 'function') ? value.toString() : value;
@@ -373,20 +373,27 @@ var flattenText = function (item) {
   return str
 };
 //防止出现空对象，正则会出问题
-var checkEmptyObject = (config)=> {
-  for (let i in config) {
-    if (Object.prototype.toString.call(config[i]) === '[object Object]') {
-      let flag = false;
-      for (let ii in config[i]) {
-        flag = true;
-        config[i] = checkEmptyObject(config[i]);
-        break;
-      }
-      if (!flag) {
-        config[i] = {nothing: null};
+var checkEmptyObjectOrArray = (config)=> {
+  if(isArray(config) && config.length===0){
+    config = undefined;
+  }else {
+    for (let i in config) {
+      if (Object.prototype.toString.call(config[i]) === '[object Object]') {
+        let flag = false;
+        for (let ii in config[i]) {
+          flag = true;
+          config[i] = checkEmptyObjectOrArray(config[i]);
+          break;
+        }
+        if (!flag) {
+          config[i] = {nothing: null};
+        }
+      }else if(isArray(config[i])) {
+        config[i] = checkEmptyObjectOrArray(config[i]);
       }
     }
   }
+
   return config;
 };
 
