@@ -153,17 +153,53 @@ export default class ChartWeb extends Component {
       init += highChartJs;
     }
     init += `<script>
-                      $(function () {
-                        window.location.hash = 1;
-                        document.title = document.body.scrollHeight;
+              $(function () {
 
-                        var outerProps =
-                         `;
+               function awaitPostMessage() {//修复postmessage
+                 var isReactNativePostMessageReady = !!window.originalPostMessage;
+                 var queue = [];
+                 var currentPostMessageFn = function store(message) {
+                   if (queue.length > 100) queue.shift();
+                   queue.push(message);
+                 };
+
+                 if (!isReactNativePostMessageReady) {
+                   var originalPostMessage = window.postMessage;
+                   Object.defineProperty(window, 'postMessage', {
+                     configurable: true,
+                     enumerable: true,
+                     get: function () {
+                       return currentPostMessageFn;
+                     },
+                     set: function (fn) {
+                       currentPostMessageFn = fn;
+                       isReactNativePostMessageReady = true;
+                       setTimeout(sendQueue, 0);
+                     }
+                   });
+                   window.postMessage.toString = function () {
+                     return String(originalPostMessage);
+                   };
+                 }
+
+                 function sendQueue() {
+                   while (queue.length > 0) window.postMessage(queue.shift());
+                 }
+               };
+                awaitPostMessage(); //修复postmessage
+
+                window.postMessage(document.body.clientHeight.toString());
+
+
+//                window.location.hash = '#myHeight#' + document.body.clientHeight;
+
+                var outerProps =
+            `;
     let outerPropsEnd = ';';
 
     let chartEnd = ` );`;
     this.state = {
-      height: DeviceHeight,
+      height: this.props.height?this.props.height:DeviceHeight,
       init,
       outerPropsEnd,
       chartEnd,
@@ -347,10 +383,11 @@ export default class ChartWeb extends Component {
           automaticallyAdjustContentInsets={false}
           onLayout={this.re_renderWebView}
           style={styles.full}
-          onNavigationStateChange={(title) => {
-            if (title.title && !isNaN(title.title)) {
+          onMessage={(e)=>{
+            if(!this.props.height){
+              let height = e.nativeEvent.data/1 + 10;
               this.setState({
-                height: (parseInt(title.title))
+                height:height
               });
             }
           }}
@@ -396,20 +433,27 @@ var flattenText = function (item) {
 };
 
 //防止出现空对象，正则会出问题
-var checkEmptyObject = (config) => {
-  for (let i in config) {
-    if (Object.prototype.toString.call(config[i]) === '[object Object]') {
-      let flag = false;
-      for (let ii in config[i]) {
-        flag = true;
-        config[i] = checkEmptyObject(config[i]);
-        break;
-      }
-      if (!flag) {
-        config[i] = {nothing: null};
+var checkEmptyObjectOrArray = (config)=> {
+  if(isArray(config) && config.length===0){
+    config = undefined;
+  }else {
+    for (let i in config) {
+      if (Object.prototype.toString.call(config[i]) === '[object Object]') {
+        let flag = false;
+        for (let ii in config[i]) {
+          flag = true;
+          config[i] = checkEmptyObjectOrArray(config[i]);
+          break;
+        }
+        if (!flag) {
+          config[i] = {nothing: null};
+        }
+      }else if(isArray(config[i])) {
+        config[i] = checkEmptyObjectOrArray(config[i]);
       }
     }
   }
+
   return config;
 };
 
