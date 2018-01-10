@@ -3,7 +3,7 @@
  */
 'use strict';
 import React, {Component, PropTypes} from 'react';
-import {AppRegistry, StyleSheet, Text, View, WebView, Image, Dimensions ,PixelRatio, Platform} from 'react-native';
+import {AppRegistry, StyleSheet, Text, View, WebView, Image, Dimensions, PixelRatio, Platform} from 'react-native';
 
 import {jqueryJs} from './jsString/jqueryJs';
 import {highChartJs} from './jsString/highCharts';
@@ -22,6 +22,7 @@ const platform = Platform.OS;
 function getAdjustPx(px) {
   return PixelRatio.roundToNearestPixel(px) / PxScale;
 }
+
 function getYAdjustPx(px) {
   return PixelRatio.roundToNearestPixel(px) / PxScaleY;
 }
@@ -38,6 +39,7 @@ export default class ChartWeb extends Component {
                padding: ${getAdjustPx(30)}px ${getAdjustPx(25)}px 0;
                overflow-y:hidden;
                overflow-x:hidden;
+               position: relative;
              }
              .container.seperate {
                border-bottom: ${getAdjustPx(20)}px solid rgb(236,237,238);
@@ -114,6 +116,26 @@ export default class ChartWeb extends Component {
                height: ${getAdjustPx(480)}px;
                margin-bottom: ${getAdjustPx(20)}px;
              }
+             .loading {
+               position: absolute;
+               top: 0;
+               bottom: 0;
+               left: 0;
+               right: 0;
+               background-color: #fff;
+               z-index: 1;
+             }
+             .loading:before {
+               content: '加载中';
+               display: block;
+               position: absolute;
+               left: 50%;
+               top: 50%;
+               width: 50%;
+               transform: translateY(-50%);
+               margin-left: -25%;
+               color: #999;
+             }
              body{
                 overflow-x:hidden;
                 margin: 0;
@@ -131,11 +153,12 @@ export default class ChartWeb extends Component {
       init += highChartJs;
     }
     init += `<script>
-              $(function () {
-                window.location.hash = '#' + document.body.clientHeight;
+                      $(function () {
+                        window.location.hash = 1;
+                        document.title = document.body.scrollHeight;
 
-                var outerProps =
-            `;
+                        var outerProps =
+                         `;
     let outerPropsEnd = ';';
 
     let chartEnd = ` );`;
@@ -159,6 +182,7 @@ export default class ChartWeb extends Component {
         width: win.width
       }
     }
+    this.outerProps = {empty: true}
   }
 
   // 启动 highCharts
@@ -182,7 +206,7 @@ export default class ChartWeb extends Component {
     if (config.tabTitle) {
       containerHtml += `
         <div class="tab-title">
-          <span style="${config.tabTitle.borderColor?'background-color:'+config.tabTitle.borderColor+';':''}" class="tab-border"></span>
+          <span style="${config.tabTitle.borderColor ? 'background-color:' + config.tabTitle.borderColor + ';' : ''}" class="tab-border"></span>
           <span class="tab-text">${config.tabTitle.text}</span>
         </div>
       `;
@@ -219,7 +243,12 @@ export default class ChartWeb extends Component {
       containerHtml += `</div>`;
     }
     // highCharts
-    containerHtml += `<div id="chartContainer${index}" class="chart" style="${config.chart?'height:'+getAdjustPx(config.chart.height)+'px':''}"></div>`;
+    containerHtml += `
+      <div style="position: relative;">
+        <div id="loading${index}" class="loading"></div>
+        <div id="chartContainer${index}" class="chart" style="${config.chart ? 'height:' + getAdjustPx(config.chart.height) + 'px' : ''}"></div>
+      </div>
+      `;
     // chart-footer
     if (config.footer) {
       containerHtml += `<div class="chart-footer"></div>`;
@@ -228,6 +257,28 @@ export default class ChartWeb extends Component {
     containerHtml += `</div></div>`;
 
     return containerHtml;
+  }
+
+  configToAddLoading(config, index) {
+    if (!config.chart) {
+      config.chart = {};
+    }
+    if (!config.chart.events) {
+      config.chart.events = {nothing: null};//防止出现空对象，正则会出问题
+    }
+    if (config.chart.events.load) {
+      this.outerProps[`originLoadFunc${index}`] = config.chart.events.load
+
+      eval(`config.chart.events.load = function () {
+        $('#loading${index.toString()}').css('display', 'none');
+        return (outerProps.originLoadFunc${index.toString()}.bind(this))(...arguments);
+      }`)
+    } else {
+      eval(`config.chart.events.load = function () {
+        $('#loading${index.toString()}').css('display', 'none');
+      }`)
+    }
+    return config;
   }
 
   re_renderWebView(e) {//re_render is used to resize on orientation of display
@@ -240,37 +291,46 @@ export default class ChartWeb extends Component {
   }
 
   render() {
-    // highCharts 启动函数字符串拼接
     let chartHtml = '';
-    let configArray = this.props.config;
-    if (!isArray(this.props.config)) {
-      configArray = [this.props.config];
-    }
-    configArray.forEach((k, i)=> {
-      //for loading
-      let configCheckEmptyObject = checkEmptyObject(k.highChartsConfig);
-      const config = JSON.parse(JSON.stringify(configCheckEmptyObject, function (key, value) {
-        //create string of json but if it detects function it uses toString()
-        return (typeof value === 'function') ? value.toString() : value;
-      }));
-      chartHtml += this.getChartStart(i) + flattenObject(config) + this.state.chartEnd;
-    });
-
-    // outerProps 字符串拼接
-    let outerProps = {empty: true};
-    if (this.props.outerProps) {
-      outerProps = this.props.outerProps;
-    }
-    const outerPropsHtml = JSON.parse(JSON.stringify(outerProps, function (key, value) {
+    let configArray = JSON.parse(JSON.stringify(this.props.config, function (key, value) {
       //create string of json but if it detects function it uses toString()
       return (typeof value === 'function') ? value.toString() : value;
     }));
+    if (!isArray(configArray)) {
+      configArray = [configArray];
+    }
 
     // html body 主题字符串拼接
     let htmlBody = '';
     configArray.forEach((k, i) => {
       htmlBody += this.getOneChartsBody(k.customConfig, i);
     })
+
+    // outerProps 字符串拼接
+    if (this.props.outerProps) {
+      this.outerProps = JSON.parse(JSON.stringify(this.props.outerProps, function (key, value) {
+        //create string of json but if it detects function it uses toString()
+        return (typeof value === 'function') ? value.toString() : value;
+      }));
+    }
+
+    // highCharts 启动函数字符串拼接
+    configArray.forEach((k, i) => {
+      //for loading
+      let configToAddLoading = this.configToAddLoading(k.highChartsConfig, i)
+
+      let configCheckEmptyObject = checkEmptyObject(configToAddLoading);
+      let config = JSON.parse(JSON.stringify(configCheckEmptyObject, function (key, value) {
+        //create string of json but if it detects function it uses toString()
+        return (typeof value === 'function') ? value.toString() : value;
+      }));
+      chartHtml += this.getChartStart(i) + flattenObject(config) + this.state.chartEnd;
+    });
+
+    const outerPropsHtml = JSON.parse(JSON.stringify(this.outerProps, function (key, value) {
+      //create string of json but if it detects function it uses toString()
+      return (typeof value === 'function') ? value.toString() : value;
+    }));
 
     // webView html content
     const concatHTML = this.state.init + flattenObject(outerPropsHtml) + this.state.outerPropsEnd + chartHtml +
@@ -281,16 +341,18 @@ export default class ChartWeb extends Component {
     }
 
     return (
-      <View style={{height:Math.max(this.state.height, DeviceHeight)}}>
+      <View style={{height: Math.max(this.state.height, DeviceHeight)}}>
         <WebView
           bounces={false}
           automaticallyAdjustContentInsets={false}
           onLayout={this.re_renderWebView}
           style={styles.full}
-          onNavigationStateChange={(info)=>{
-            this.setState({
-              height:info.url.replace('about:blank%23','')/1
-            });
+          onNavigationStateChange={(title) => {
+            if (title.title && !isNaN(title.title)) {
+              this.setState({
+                height: (parseInt(title.title))
+              });
+            }
           }}
           source={{html: concatHTML, baseUrl: 'web/'}}
           javaScriptEnabled={true}
@@ -332,8 +394,9 @@ var flattenText = function (item) {
   }
   return str
 };
+
 //防止出现空对象，正则会出问题
-var checkEmptyObject = (config)=> {
+var checkEmptyObject = (config) => {
   for (let i in config) {
     if (Object.prototype.toString.call(config[i]) === '[object Object]') {
       let flag = false;
