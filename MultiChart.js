@@ -20,18 +20,18 @@ const Highcharts = 'Highcharts';
 const platform = Platform.OS;
 
 function getAdjustPx(px) {
-  return PixelRatio.roundToNearestPixel(px) / PxScale;
+    return PixelRatio.roundToNearestPixel(px) / PxScale;
 }
 
 function getYAdjustPx(px) {
-  return PixelRatio.roundToNearestPixel(px) / PxScaleY;
+    return PixelRatio.roundToNearestPixel(px) / PxScaleY;
 }
 
 export default class ChartWeb extends Component {
-  constructor(props) {
-    super(props);
-    let init;
-    init = `
+    constructor(props) {
+        super(props);
+        let init;
+        init = `
           <!DOCTYPE html>
           <html>
              <style media="screen" type="text/css">
@@ -146,14 +146,16 @@ export default class ChartWeb extends Component {
              <meta charset="utf-8">
              <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
              `;
-    init += jqueryJs;
-    if (this.props.highStockFlag) {
-      init += highStockJs;
-    } else {
-      init += highChartJs;
-    }
-    init += `<script>
-              $(function () {
+        init += jqueryJs;
+        if (this.props.highStockFlag) {
+            init += highStockJs;
+        } else {
+            init += highChartJs;
+        }
+        init += `<script>
+                      $(function () {
+                        window.location.hash = 1;
+                        document.title = document.body.scrollHeight;
 
                function awaitPostMessage() {//修复postmessage
                  var isReactNativePostMessageReady = !!window.originalPostMessage;
@@ -195,295 +197,287 @@ export default class ChartWeb extends Component {
 
                 var outerProps =
             `;
-    let outerPropsEnd = ';';
+        let outerPropsEnd = ';';
 
-    let chartEnd = ` );`;
-    this.state = {
-      height: this.props.height?this.props.height:DeviceHeight,
-      init,
-      outerPropsEnd,
-      chartEnd,
-      headEnd: `
+        let chartEnd = ` );`;
+        this.state = {
+            height: this.props.height ? this.props.height : DeviceHeight,
+            init,
+            outerPropsEnd,
+            chartEnd,
+            headEnd: `
                         });
                         </script>
                     </head>
                     <body>
                `,
-      end: `
+            end: `
                     </body>
                 </html>
               `,
-      Wlayout: {
-        height: win.height,
-        width: win.width
-      }
+            Wlayout: {
+                height: win.height,
+                width: win.width
+            }
+        }
+        this.outerProps = {empty: true}
     }
-    this.outerProps = {empty: true}
-  }
 
-  // 启动 highCharts
-  getChartStart(i) {
-    let chartStart;
+    // 启动 highCharts
+    getChartStart(i) {
+        let chartStart;
 
-    if (this.props.highStockFlag) {
-      chartStart = `  ;
+        if (this.props.highStockFlag) {
+            chartStart = `  ;
                     $('#chartContainer${(i === 0 || i) ? i.toString() : ''}').highcharts('StockChart', `;
-    } else {
-      chartStart = `  ;
+        } else {
+            chartStart = `  ;
                     $('#chartContainer${(i === 0 || i) ? i.toString() : ''}').highcharts( `;
+        }
+        return chartStart
     }
-    return chartStart
-  }
 
-  // 拼接一个 highCharts 单元
-  getOneChartsBody(config, index) {
-    let containerHtml = `<div class='container ${config.containerMarginBottom ? 'seperate' : ''}'>`
-    // tabTitle
-    if (config.tabTitle) {
-      containerHtml += `
+    // 拼接一个 highCharts 单元
+    getOneChartsBody(config, index) {
+        let containerHtml = `<div class='container ${config.containerMarginBottom ? 'seperate' : ''}'>`
+        // tabTitle
+        if (config.tabTitle) {
+            containerHtml += `
         <div class="tab-title">
           <span style="${config.tabTitle.borderColor ? 'background-color:' + config.tabTitle.borderColor + ';' : ''}" class="tab-border"></span>
           <span class="tab-text">${config.tabTitle.text}</span>
         </div>
       `;
-    }
-    // chart-wrapper
-    containerHtml += `<div class="chart-wrapper text-center">`;
-    // title
-    if (config.title) {
-      containerHtml += `
+        }
+        // chart-wrapper
+        containerHtml += `<div class="chart-wrapper text-center">`;
+        // title
+        if (config.title) {
+            containerHtml += `
         <div class="title">${config.title.text}
       `;
-      if (config.title.subTitle) {
-        containerHtml += `
+            if (config.title.subTitle) {
+                containerHtml += `
         <span class="sub-title">${config.title.subTitle}</span>
       `;
-      }
-      if (config.title.titleNum) {
-        containerHtml += `
+            }
+            if (config.title.titleNum) {
+                containerHtml += `
         <span class="title-number">${config.title.titleNum}</span>
       `;
-      }
-      containerHtml += '</div>';
-    }
-    // legends
-    if (config.legend) {
-      containerHtml += `<div class="legend">`;
+            }
+            containerHtml += '</div>';
+        }
+        // legends
+        if (config.legend) {
+            containerHtml += `<div class="legend">`;
 
-      config.legend.forEach(item => {
-        containerHtml += `
+            config.legend.forEach(item => {
+                containerHtml += `
           <span class="legend-label ${item.legendColor ? item.legendColor : ''}"></span>
           <span class="legend-name">${item.text}</span>
         `;
-      })
-      containerHtml += `</div>`;
-    }
-    // highCharts
-    containerHtml += `
+            })
+            containerHtml += `</div>`;
+        }
+        // highCharts
+        containerHtml += `
       <div style="position: relative;">
         <div id="loading${index}" class="loading"></div>
         <div id="chartContainer${index}" class="chart" style="${config.chart ? 'height:' + getAdjustPx(config.chart.height) + 'px' : ''}"></div>
       </div>
       `;
-    // chart-footer
-    if (config.footer) {
-      containerHtml += `<div class="chart-footer"></div>`;
-    }
-    // end chart-wrapper and container tag
-    containerHtml += `</div></div>`;
+        // chart-footer
+        if (config.footer) {
+            containerHtml += `<div class="chart-footer"></div>`;
+        }
+        // end chart-wrapper and container tag
+        containerHtml += `</div></div>`;
 
-    return containerHtml;
-  }
-
-  configToAddLoading(config, index) {
-    if (!config.chart) {
-      config.chart = {};
+        return containerHtml;
     }
-    if (!config.chart.events) {
-      config.chart.events = {nothing: null};//防止出现空对象，正则会出问题
-    }
-    if (config.chart.events.load) {
-      this.outerProps[`originLoadFunc${index}`] = config.chart.events.load
 
-      eval(`config.chart.events.load = function () {
+    configToAddLoading(config, index) {
+        if (!config.chart) {
+            config.chart = {};
+        }
+        if (!config.chart.events) {
+            config.chart.events = {nothing: null};//防止出现空对象，正则会出问题
+        }
+        if (config.chart.events.load) {
+            this.outerProps[`originLoadFunc${index}`] = config.chart.events.load
+
+            eval(`config.chart.events.load = function () {
         $('#loading${index.toString()}').css('display', 'none');
         return (outerProps.originLoadFunc${index.toString()}.bind(this))(...arguments);
       }`)
-    } else {
-      eval(`config.chart.events.load = function () {
+        } else {
+            eval(`config.chart.events.load = function () {
         $('#loading${index.toString()}').css('display', 'none');
       }`)
-    }
-    return config;
-  }
-
-  re_renderWebView(e) {//re_render is used to resize on orientation of display
-    /*this.setState({
-     Wlayout: {
-     height: e.nativeEvent.layout.height,
-     width: e.nativeEvent.layout.width,
-     }
-     })*/
-  }
-
-  render() {
-    let chartHtml = '';
-    let configArray = JSON.parse(JSON.stringify(this.props.config, function (key, value) {
-      //create string of json but if it detects function it uses toString()
-      return (typeof value === 'function') ? value.toString() : value;
-    }));
-    if (!isArray(configArray)) {
-      configArray = [configArray];
+        }
+        return config;
     }
 
-    // html body 主题字符串拼接
-    let htmlBody = '';
-    configArray.forEach((k, i) => {
-      htmlBody += this.getOneChartsBody(k.customConfig, i);
-    })
-
-    // outerProps 字符串拼接
-    if (this.props.outerProps) {
-      this.outerProps = JSON.parse(JSON.stringify(this.props.outerProps, function (key, value) {
-        //create string of json but if it detects function it uses toString()
-        return (typeof value === 'function') ? value.toString() : value;
-      }));
+    re_renderWebView(e) {//re_render is used to resize on orientation of display
+        /*this.setState({
+         Wlayout: {
+         height: e.nativeEvent.layout.height,
+         width: e.nativeEvent.layout.width,
+         }
+         })*/
     }
 
-    // highCharts 启动函数字符串拼接
-    configArray.forEach((k, i) => {
-      //for loading
-      let configToAddLoading = this.configToAddLoading(k.highChartsConfig, i)
+    render() {
+        let chartHtml = '';
+        let configArray = JSON.parse(JSON.stringify(this.props.config, function (key, value) {
+            //create string of json but if it detects function it uses toString()
+            return (typeof value === 'function') ? value.toString() : value;
+        }));
+        if (!isArray(configArray)) {
+            configArray = [configArray];
+        }
 
-      let configCheckEmptyObject = checkEmptyObject(configToAddLoading);
-      let config = JSON.parse(JSON.stringify(configCheckEmptyObject, function (key, value) {
-        //create string of json but if it detects function it uses toString()
-        return (typeof value === 'function') ? value.toString() : value;
-      }));
-      chartHtml += this.getChartStart(i) + flattenObject(config) + this.state.chartEnd;
-    });
+        // html body 主题字符串拼接
+        let htmlBody = '';
+        configArray.forEach((k, i) => {
+            htmlBody += this.getOneChartsBody(k.customConfig, i);
+        })
 
-    const outerPropsHtml = JSON.parse(JSON.stringify(this.outerProps, function (key, value) {
-      //create string of json but if it detects function it uses toString()
-      return (typeof value === 'function') ? value.toString() : value;
-    }));
+        // outerProps 字符串拼接
+        if (this.props.outerProps) {
+            this.outerProps = JSON.parse(JSON.stringify(this.props.outerProps, function (key, value) {
+                //create string of json but if it detects function it uses toString()
+                return (typeof value === 'function') ? value.toString() : value;
+            }));
+        }
 
-    // webView html content
-    const concatHTML = this.state.init + flattenObject(outerPropsHtml) + this.state.outerPropsEnd + chartHtml +
-      this.state.headEnd + htmlBody + this.state.end;
+        // highCharts 启动函数字符串拼接
+        configArray.forEach((k, i) => {
+            //for loading
+            let configToAddLoading = this.configToAddLoading(k.highChartsConfig, i)
 
-    if (this.props.debug) {
-      console.log(1233, concatHTML)
-    }
+            let configCheckEmptyObject = checkEmptyObject(configToAddLoading);
+            let config = JSON.parse(JSON.stringify(configCheckEmptyObject, function (key, value) {
+                //create string of json but if it detects function it uses toString()
+                return (typeof value === 'function') ? value.toString() : value;
+            }));
+            chartHtml += this.getChartStart(i) + flattenObject(config) + this.state.chartEnd;
+        });
 
-    return (
-      <View style={{height: Math.max(this.state.height, DeviceHeight)}}>
-        <WebView
-          bounces={false}
-          automaticallyAdjustContentInsets={false}
-          onLayout={this.re_renderWebView}
-          style={styles.full}
-          onMessage={(e)=>{
-            if(!this.props.height){
-              let height = e.nativeEvent.data/1 + 10;
-              this.setState({
-                height:height
-              });
-            }
-          }}
-          source={{html: concatHTML, baseUrl: 'web/'}}
-          javaScriptEnabled={true}
-        />
-      </View>
-    );
-  };
+        const outerPropsHtml = JSON.parse(JSON.stringify(this.outerProps, function (key, value) {
+            //create string of json but if it detects function it uses toString()
+            return (typeof value === 'function') ? value.toString() : value;
+        }));
+
+        // webView html content
+        const concatHTML = this.state.init + flattenObject(outerPropsHtml) + this.state.outerPropsEnd + chartHtml +
+            this.state.headEnd + htmlBody + this.state.end;
+
+        if (this.props.debug) {
+            console.log(1233, concatHTML)
+        }
+
+        return (
+            <View style={{height: Math.max(this.state.height, DeviceHeight)}}>
+                <WebView
+                    bounces={false}
+                    automaticallyAdjustContentInsets={false}
+                    onLayout={this.re_renderWebView}
+                    style={styles.full}
+                    onMessage={(e) => {
+                        if (!this.props.height) {
+                            let height = e.nativeEvent.data / 1 + 10;
+                            this.setState({
+                                height: height
+                            });
+                        }
+                    }}
+                    source={{html: concatHTML, baseUrl: 'web/'}}
+                    javaScriptEnabled={true}
+                />
+            </View>
+        );
+    };
 }
 
 var isArray = function (obj) {
-  return Object.prototype.toString.call(obj) === '[object Array]';
+    return Object.prototype.toString.call(obj) === '[object Array]';
 }
 
 // highCharts 修正
 var flattenObject = function (obj, str = '{') {
-  Object.keys(obj).forEach(function (key) {
-    str += `${key}: ${flattenText(obj[key])}, `
-  })
-  return `${str.slice(0, str.length - 2)}}`
+    Object.keys(obj).forEach(function (key) {
+        str += `${key}: ${flattenText(obj[key])}, `
+    })
+    return `${str.slice(0, str.length - 2)}}`
 };
 
 var flattenText = function (item) {
-  var str = ''
-  if (item && typeof item === 'object' && item.length == undefined) {
-    str += flattenObject(item)
-  } else if (item && typeof item === 'object' && item.length !== undefined) {
-    str += '['
-    item.forEach(function (k2) {
-      str += `${flattenText(k2)}, `
-    })
-    str = str.slice(0, str.length - 2)
-    str += ']'
-  } else if (typeof item === 'string' && item.slice(0, 8) === 'function') {
-    str += `${item}`
-  } else if (typeof item === 'string') {
-    str += `\"${item.replace(/"/g, '\\"')}\"`
-  } else {
-    str += `${item}`
-  }
-  return str
-};
-
-//防止出现空对象，正则会出问题
-var checkEmptyObjectOrArray = (config)=> {
-  if(isArray(config) && config.length===0){
-    config = undefined;
-  }else {
-    for (let i in config) {
-      if (Object.prototype.toString.call(config[i]) === '[object Object]') {
-        let flag = false;
-        for (let ii in config[i]) {
-          flag = true;
-          config[i] = checkEmptyObjectOrArray(config[i]);
-          break;
-        }
-        if (!flag) {
-          config[i] = {nothing: null};
-        }
-      }else if(isArray(config[i])) {
-        config[i] = checkEmptyObjectOrArray(config[i]);
-      }
+    var str = ''
+    if (item && typeof item === 'object' && item.length == undefined) {
+        str += flattenObject(item)
+    } else if (item && typeof item === 'object' && item.length !== undefined) {
+        str += '['
+        item.forEach(function (k2) {
+            str += `${flattenText(k2)}, `
+        })
+        str = str.slice(0, str.length - 2)
+        str += ']'
+    } else if (typeof item === 'string' && item.slice(0, 8) === 'function') {
+        str += `${item}`
+    } else if (typeof item === 'string') {
+        str += `\"${item.replace(/"/g, '\\"')}\"`
+    } else {
+        str += `${item}`
     }
-  }
-
-  return config;
+    return str
+};
+//防止出现空对象，正则会出问题
+var checkEmptyObject = (config) => {
+    for (let i in config) {
+        if (Object.prototype.toString.call(config[i]) === '[object Object]') {
+            let flag = false;
+            for (let ii in config[i]) {
+                flag = true;
+                config[i] = checkEmptyObject(config[i]);
+                break;
+            }
+            if (!flag) {
+                config[i] = {nothing: null};
+            }
+        }
+    }
+    return config;
 };
 
 var styles = StyleSheet.create({
-  full: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'transparent'
-  },
-  backLoading: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  backLoadingWrapper: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'rgb(246,246,246)',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  loadingImage: {
-    resizeMode: 'contain',
-    width: 100,
-    height: 100,
-  }
+    full: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'transparent'
+    },
+    backLoading: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        width: '100%',
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    backLoadingWrapper: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgb(246,246,246)',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    loadingImage: {
+        resizeMode: 'contain',
+        width: 100,
+        height: 100,
+    }
 });
 
 module.exports = ChartWeb;
