@@ -77,6 +77,7 @@ class ChartWeb extends Component {
                 width:win.width
           }
         }
+      this.outerProps = {empty: true};
     }
 
     re_renderWebView(e) {//re_render is used to resize on orientation of display
@@ -97,10 +98,10 @@ class ChartWeb extends Component {
         config.chart.events = {nothing:null};//防止出现空对象，正则会出问题
       }
       if(config.chart.events.load){
-        let temp = config.chart.events.load;
+        this.outerProps[`originLoadFunc`] = config.chart.events.load
         config.chart.events.load = function(){
           $('#container').css('visibility','visible');
-          return (temp.bind(this))(...arguments);
+          return (outerProps.originLoadFunc.bind(this))(...arguments);
         }
         return config;
       }else{
@@ -115,18 +116,26 @@ class ChartWeb extends Component {
   }
 
     render() {
+      // outerProps 字符串拼接
+      if (this.props.outerProps) {
+        this.outerProps = JSON.parse(JSON.stringify(this.props.outerProps, function (key, value) {
+          //create string of json but if it detects function it uses toString()
+          return (typeof value === 'function') ? value.toString() : value;
+        }));
+      }
       //for loading
-      let configToAddLoading = this.configToAddLoading(this.props.config);
+      let copyConfig = JSON.parse(JSON.stringify(this.props.config, function (key, value) {
+        //create string of json but if it detects function it uses toString()
+        return (typeof value === 'function') ? value.toString() : value;
+      }));
+      let configToAddLoading = this.configToAddLoading(copyConfig);
       let configCheckEmptyObject = checkEmptyObjectOrArray(configToAddLoading);
       const config = JSON.parse(JSON.stringify(configCheckEmptyObject, function (key, value) {
           //create string of json but if it detects function it uses toString()
           return (typeof value === 'function') ? value.toString() : value;
         }));
-      let outerProps = {empty:true};
-      if(this.props.outerProps){
-        outerProps = this.props.outerProps;
-      }
-      const outerPropsHtml = JSON.parse(JSON.stringify(outerProps, function (key, value) {
+
+      const outerPropsHtml = JSON.parse(JSON.stringify(this.outerProps, function (key, value) {
         //create string of json but if it detects function it uses toString()
         return (typeof value === 'function') ? value.toString() : value;
       }));
