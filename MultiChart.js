@@ -35,11 +35,17 @@ export default class ChartWeb extends Component {
           <!DOCTYPE html>
           <html>
              <style media="screen" type="text/css">
+             body {
+               margin: 0;
+               padding: 0;
+               background-color: #fff;
+             }
              .container {
                padding: ${getAdjustPx(30)}px ${getAdjustPx(25)}px 0;
                overflow-y:hidden;
                overflow-x:hidden;
                position: relative;
+               visibility: hidden;
              }
              .container.seperate {
                border-bottom: ${getAdjustPx(20)}px solid rgb(236,237,238);
@@ -126,7 +132,7 @@ export default class ChartWeb extends Component {
                z-index: 1;
              }
              .loading:before {
-               content: '加载中';
+               content: '加载失败...';
                display: block;
                position: absolute;
                left: 50%;
@@ -134,7 +140,7 @@ export default class ChartWeb extends Component {
                width: 50%;
                transform: translateY(-50%);
                margin-left: -25%;
-               color: #999;
+               color: #f00;
              }
              body{
                 overflow-x:hidden;
@@ -309,11 +315,13 @@ export default class ChartWeb extends Component {
 
             eval(`config.chart.events.load = function () {
         $('#loading${index.toString()}').css('display', 'none');
+        $('.container').css('visibility','visible');
         return (outerProps.originLoadFunc${index.toString()}.bind(this))(...arguments);
       }`)
         } else {
             eval(`config.chart.events.load = function () {
         $('#loading${index.toString()}').css('display', 'none');
+        $('.container').css('visibility','visible');
       }`)
         }
         return config;
@@ -380,6 +388,14 @@ export default class ChartWeb extends Component {
 
         return (
             <View style={{height: Math.max(this.state.height, DeviceHeight)}}>
+                {(() => {
+                    return (
+                        <View style={styles.backLoading}>
+                            {/*<Image style={styles.loadingImage} source={require('./public/loadingData.png')}/>*/}
+                            <Text>正在加载...</Text>
+                        </View>
+                    )
+                })()}
                 <WebView
                     bounces={false}
                     automaticallyAdjustContentInsets={false}
@@ -464,7 +480,7 @@ var styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         alignItems: 'center',
-        justifyContent: 'center'
+        marginTop: getAdjustPx(50)
     },
     backLoadingWrapper: {
         width: '100%',
