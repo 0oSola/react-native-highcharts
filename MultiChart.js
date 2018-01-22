@@ -392,7 +392,7 @@ export default class ChartWeb extends Component {
                     return (
                         <View style={styles.backLoading}>
                             {/*<Image style={styles.loadingImage} source={require('./public/loadingData.png')}/>*/}
-                            <Text>正在加载...</Text>
+                            <Text style={{color: 'rgba(204,204,204,1)'}}>正在加载...</Text>
                         </View>
                     )
                 })()}
