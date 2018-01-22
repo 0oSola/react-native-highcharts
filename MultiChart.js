@@ -365,7 +365,7 @@ export default class ChartWeb extends Component {
             //for loading
             let configToAddLoading = this.configToAddLoading(k.highChartsConfig, i)
 
-            let configCheckEmptyObject = checkEmptyObject(configToAddLoading);
+            let configCheckEmptyObject = checkEmptyObjectOrArray(configToAddLoading);
             let config = JSON.parse(JSON.stringify(configCheckEmptyObject, function (key, value) {
                 //create string of json but if it detects function it uses toString()
                 return (typeof value === 'function') ? value.toString() : value;
@@ -382,9 +382,9 @@ export default class ChartWeb extends Component {
         const concatHTML = this.state.init + flattenObject(outerPropsHtml) + this.state.outerPropsEnd + chartHtml +
             this.state.headEnd + htmlBody + this.state.end;
 
-        if (this.props.debug) {
-            console.log(1233, concatHTML)
-        }
+        // if (this.props.debug) {
+        console.log(1233, concatHTML)
+        // }
 
         return (
             <View style={{height: Math.max(this.state.height, DeviceHeight)}}>
@@ -449,24 +449,31 @@ var flattenText = function (item) {
     }
     return str
 };
+
 //防止出现空对象，正则会出问题
-var checkEmptyObject = (config) => {
-    for (let i in config) {
-        if (Object.prototype.toString.call(config[i]) === '[object Object]') {
-            let flag = false;
-            for (let ii in config[i]) {
-                flag = true;
-                config[i] = checkEmptyObject(config[i]);
-                break;
-            }
-            if (!flag) {
-                config[i] = {nothing: null};
+var checkEmptyObjectOrArray = (config) => {
+    if (isArray(config) && config.length === 0) {
+        config = undefined;
+    } else {
+        for (let i in config) {
+            if (Object.prototype.toString.call(config[i]) === '[object Object]') {
+                let flag = false;
+                for (let ii in config[i]) {
+                    flag = true;
+                    config[i] = checkEmptyObjectOrArray(config[i]);
+                    break;
+                }
+                if (!flag) {
+                    config[i] = {nothing: null};
+                }
+            } else if (isArray(config[i])) {
+                config[i] = checkEmptyObjectOrArray(config[i]);
             }
         }
     }
+
     return config;
 };
-
 var styles = StyleSheet.create({
     full: {
         width: '100%',
