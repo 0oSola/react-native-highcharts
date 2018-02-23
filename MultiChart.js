@@ -386,9 +386,9 @@ export default class ChartWeb extends Component {
         const concatHTML = this.state.init + flattenObject(outerPropsHtml) + this.state.outerPropsEnd + chartHtml +
             this.state.headEnd + htmlBody + this.state.end;
 
-        // if (this.props.debug) {
+         if (this.props.debug) {
         console.log(1233, concatHTML)
-        // }
+         }
 
         return (
             <View style={{height: Math.max(this.state.height, DeviceHeight)}}>
