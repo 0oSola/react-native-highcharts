@@ -100,22 +100,26 @@ export default class ChartWeb extends Component {
              }
              .legend-label.green {
                border-color: #45d6ac;
-               box-shadow: 0 0 10px rgba(69,214,172,0.5);
+               /*box-shadow: 0 0 10px rgba(69,214,172,0.5);*/
              }
              .legend-label.blue {
                border-color: #0085ff;
-               box-shadow: 0 0 10px rgba(0,133,255,0.5);
+               /*box-shadow: 0 0 10px rgba(0,133,255,0.5);*/
              }
              .legend-label.deepBlue {
                border-color: #004a98;
-               box-shadow: 0 0 10px rgba(0,74,152,0.5);
+               /*box-shadow: 0 0 10px rgba(0,74,152,0.5);*/
              }
              .legend-label.purple {
                border-color: #9b5eed;
-               box-shadow: 0 0 10px rgba(155,94,237,0.5);
+               /*box-shadow: 0 0 10px rgba(155,94,237,0.5);*/
+             }
+             .legend-label.gray {
+               border-color: rgb(229, 229, 229);
+               /*box-shadow: 0 0 10px rgba(155,94,237,0.5);*/
              }
              .legend-name~.legend-label {
-               margin-left: ${getAdjustPx(30)}px;
+               margin-left: ${getAdjustPx(50)}px;
              }
              .chart {
                width: 100%;
